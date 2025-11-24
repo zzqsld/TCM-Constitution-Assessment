@@ -1,0 +1,18 @@
+{
+  "name": "tcm-constitution-assessment",
+  "version": "0.1.0",
+  "description": "Static TCM constitution self-assessment web app (Chinese).",
+  "license": "Apache-2.0",
+  "private": false,
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-user/tcm-constitution-assessment.git"
+  },
+  "keywords": ["TCM", "constitution", "assessment", "traditional-chinese-medicine", "health", "questionnaire"],
+  "author": "Contributors",
+  "homepage": "https://github.com/your-user/tcm-constitution-assessment#readme"
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>中医体质测评</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="notifyBar" class="notify-bar" hidden></div>
+    <header class="app-header">
+        <h1>中医体质测评</h1>
+        <div id="progress" class="progress" aria-live="polite">正在进行：<span id="currentConstitutionName"></span> 已完成：<span id="completedCount">0</span>/9</div>
+        <div class="settings" id="settingsPanel">
+            <label for="orderMode">测试顺序：
+                <select id="orderMode">
+                    <option value="sequential" selected>顺序</option>
+                    <option value="random">乱序</option>
+                </select>
+            </label>
+            <button id="resetAllBtn" class="btn" title="清空答题与预留信息并返回填写">重置</button>
+            <small id="modeHint">默认顺序，可在开始前切换。</small>
+        </div>
+        <!-- 异常退出提示已移除，始终重新开始 -->
+    </header>
+
+    <main class="app-main">
+        <!-- 量表信息填写/引导 -->
+        <section id="introSection" class="intro-section">
+            <h2 class="intro-title">中医体质测评量表</h2>
+            <p class="intro-desc">可填写个人信息生成正式报告，或直接跳过开始测评。</p>
+            <form id="userInfoForm" class="user-info-form" autocomplete="off" novalidate>
+                <div class="form-row">
+                    <label for="userName">姓名：</label>
+                    <input id="userName" name="userName" type="text" maxlength="20" placeholder="可选填写" />
+                    <small class="field-hint">可选，填写后将显示于正式报告</small>
+                </div>
+                <div class="form-row">
+                    <label for="userGender">性别：</label>
+                    <select id="userGender" name="userGender">
+                        <option value="">保密/未选</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                    <small class="field-hint">可选，用于正式报告展示</small>
+                </div>
+                <div class="form-row form-row-age">
+                    <label for="userAge">年龄：</label>
+                    <div class="age-input-wrap">
+                        <input id="userAge" name="userAge" type="text" inputmode="numeric" pattern="\d{1,3}" placeholder="数字(可选)" />
+                        <small class="field-hint">可选，最多三位数字</small>
+                        <div id="ageError" class="age-error" aria-live="polite" hidden></div>
+                    </div>
+                </div>
+                <div id="userInfoError" class="form-error" aria-live="polite"></div>
+                <div class="form-actions">
+                    <button type="button" id="startBtn" class="btn primary">开始测评</button>
+                    <button type="button" id="skipBtn" class="btn">跳过</button>
+                </div>
+            </form>
+        </section>
+        <!-- 问题展示区域 -->
+        <section id="questionSection" class="question-section">
+            <h2 id="constitutionTitle" class="constitution-title"></h2>
+            <div id="questionsContainer" class="questions-container"></div>
+            <div class="nav-bar">
+                <button id="prevGroupBtn" class="btn" disabled>上一组</button>
+                <button id="nextGroupBtn" class="btn primary">下一组</button>
+            </div>
+        </section>
+
+                <!-- 结果展示区域（专业报告格式） -->
+                <section id="resultSection" class="result-section" hidden>
+                    <div id="finalReport" class="final-report-container"></div>
+                </section>
+    </main>
+
+    <footer class="app-footer">
+        <small>仅用于自我初步体质倾向参考，不能替代专业诊断。</small>
+        <div style="margin-top:.35rem;font-size:.75rem;font-weight:600;">
+            <a href="https://github.com/zzqsld/TCM-Constitution-Assessment" target="_blank" rel="noopener" style="color:#0b70ff;text-decoration:none;">TCM Constitution Assessment 项目主页 / 源代码</a>
+        </div>
+    </footer>
+
+        <!-- 隐藏调试面板（通过秘钥序列触发） -->
+        <div id="debugPanel" class="debug-panel" hidden>
+            <div class="debug-header">
+                <strong>调试面板</strong>
+                <button id="closeDebugBtn" class="btn btn-inline">关闭</button>
+            </div>
+            <div class="debug-body">
+                                <button class="btn debug-action" data-action="fill-current-1">当前组填充“没有”(1)</button>
+                                <button class="btn debug-action" data-action="fill-current-3">当前组填充“有些”(3)</button>
+                                <button class="btn debug-action" data-action="fill-current-5">当前组填充“总是”(5)</button>
+                                <button class="btn debug-action" data-action="fill-all-random">全部随机频率填充</button>
+                                <button class="btn debug-action" data-action="restart-user-info">重新填写预留信息</button>
+                                <button class="btn debug-action" data-action="randomize-advice">随机建议</button>
+                                <button class="btn debug-action" data-action="clear">清空状态</button>
+                                <button class="btn debug-action" data-action="toggle-mode">切换顺序/乱序</button>
+                                <hr />
+                                <!-- 体质预设集合 -->
+                                <div class="preset-group">
+                                    <div class="preset-title">加载预设体质</div>
+                                    <button class="btn debug-action" data-action="preset-pinghe">平和</button>
+                                    <button class="btn debug-action" data-action="preset-yangxu-main">阳虚</button>
+                                    <button class="btn debug-action" data-action="preset-yinxu-main">阴虚</button>
+                                    <button class="btn debug-action" data-action="preset-qixu-main">气虚</button>
+                                    <button class="btn debug-action" data-action="preset-tanshi-main">痰湿</button>
+                                    <button class="btn debug-action" data-action="preset-shire-main">湿热</button>
+                                    <button class="btn debug-action" data-action="preset-xueyu-main">瘀血</button>
+                                    <button class="btn debug-action" data-action="preset-qiyu-main">气郁</button>
+                                    <button class="btn debug-action" data-action="preset-tebing-main">特禀</button>
+                                    <button class="btn debug-action" data-action="preset-random-multi-main">随机</button>
+                                    <button class="btn debug-action" data-action="preset-all">全部偏颇</button>
+                                </div>
+                                <!-- 编号调节（精简：最小 / -1 / +1 / 最大 + 手动输入5位） -->
+                                <div class="preset-group" style="margin-top:.4rem;">
+                                    <div class="preset-title">报告编号调节</div>
+                                    <div style="grid-column:1/-1;font-size:.6rem;line-height:1.3;">
+                                        当前编号：<strong id="reportIdCurrent">(未生成)</strong><br />
+                                        输入 5 位编码（数字或字母），不能包含符号。
+                                    </div>
+                                    <button class="btn debug-action" data-action="id-min">最小</button>
+                                    <button class="btn debug-action" data-action="id-dec-1">-1</button>
+                                    <button class="btn debug-action" data-action="id-inc-1">+1</button>
+                                    <button class="btn debug-action" data-action="id-max">最大</button>
+                                    <div style="grid-column:1/-1;display:flex;gap:.3rem;align-items:center;">
+                                        <input id="reportIdInput" type="text" maxlength="5" placeholder="5位编码" style="flex:1;padding:.25rem .35rem;font-size:.6rem;border:1px solid #3d4a40;border-radius:4px;background:#1b211d;color:#d7e2db;" />
+                                        <button class="btn debug-action" data-action="id-apply" style="white-space:nowrap;">应用</button>
+                                    </div>
+                                    <div id="reportIdError" class="age-tooltip age-error" hidden style="grid-column:1/-1;font-size:.6rem;color:#ff6b6b;"></div>
+                                </div>
+                <pre id="debugOutput" class="debug-output"></pre>
+            </div>
+        </div>
+
+    <script src="constants.js"></script>
+    <script src="questions.js"></script>
+    <script src="knowledge.js"></script>
+    <!-- 已移除导出相关外部库：仅展示报告，不提供打印/保存 -->
+    <script src="app.js"></script>
+</body>
+</html>
