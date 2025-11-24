@@ -6,6 +6,13 @@ A lightweight, dependency‑free, static web application for Traditional Chinese
 
 本项目是一个无需后端的纯前端单页应用，依据《中医体质分类与判定自测表》逻辑实现体质自测。强调：仅供学习与初步自我参考，不构成任何医疗建议或诊断。
 
+## Demo / 在线演示
+GitHub Pages 在线示例：
+
+https://zzqsld.github.io/TCM-Constitution-Assessment/
+
+（纯前端静态加载，无数据收集。）
+
 ## Features / 特性
 - Zero build: pure HTML/CSS/Vanilla JS
 - Deterministic report ID generator (daily reset, multi-stage alphanumeric token)
@@ -19,8 +26,8 @@ A lightweight, dependency‑free, static web application for Traditional Chinese
 ## Live Usage / 使用方式
 1. Clone repository:
 ```
-git clone https://github.com/your-user/tcm-constitution-assessment.git
-cd tcm-constitution-assessment
+git clone https://github.com/zzqsld/TCM-Constitution-Assessment.git
+cd TCM-Constitution-Assessment
 ```
 2. Open `index.html` directly in modern browser (Chrome/Edge/Firefox). 或者使用本地静态服务器：
 ```
@@ -41,7 +48,7 @@ python -m http.server 8000
 ├─ knowledge.js        # 体质症状与建议 + 组合规则
 ├─ app.js              # 主逻辑：渲染、状态、评分、分类、报告
 ├─ README.md           # 项目说明
-├─ LICENSE             # 许可证 (MIT)
+├─ LICENSE             # 许可证 (Apache 2.0)
 ├─ CONTRIBUTING.md     # 贡献指南
 ├─ CODE_OF_CONDUCT.md  # 行为准则
 ├─ SECURITY.md         # 安全与问题报告策略
